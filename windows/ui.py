@@ -2,6 +2,7 @@ import os
 import sys
 import ctypes
 import customtkinter as ctk
+from PIL import Image
 
 # --- 1. ШЛЯХИ ТА СИСТЕМНЕ ЗАВАНТАЖЕННЯ ШРИФТУ ДЛЯ WINDOWS ---
 def get_resource_path(relative_path):
@@ -50,14 +51,34 @@ class Duina(ctk.CTk):
         self.geometry('520x520')
         self.configure(fg_color=COLOR_BG)
         self.resizable(False, False)
-
-        self.iconbitmap("")
+        
+        # Спроба прибрати іконку з заголовка вікна
+        try:
+            self.iconbitmap("")
+        except Exception:
+            pass
 
         # Початкові дані
         self.current_file = "sketch.ino"
         self.current_port = "COM3 ArduinoUNO"
         self.current_board = "arduino:avr:uno"
 
+        # Завантаження іконок дій
+        bug_btn_img = get_resource_path(os.path.join("windows", "assets", "images", "bug.png"))
+        run_btn_img = get_resource_path(os.path.join("windows", "assets", "images", "run.png"))
+
+
+        if os.path.exists(bug_btn_img):
+            self.bug_icon = ctk.CTkImage(Image.open(bug_btn_img), size=(30, 30))
+        else:
+            self.bug_icon = None
+
+        if os.path.exists(run_btn_img):
+            self.play_icon = ctk.CTkImage(Image.open(run_btn_img), size=(30, 30))
+        else:
+            self.play_icon = None
+
+        # Побудова UI (викликається ОДИН раз після ініціалізації даних)
         self._build_ui()
 
     def _build_ui(self):
@@ -105,27 +126,26 @@ class Duina(ctk.CTk):
 
         bug_btn = ctk.CTkButton(
             right_container,
-            text="🪲",
+            text="",
+            image=self.bug_icon,
             width=42,
             height=42,
             corner_radius=10,
             fg_color=COLOR_BUG_BTN,
             hover_color="#e07191",
-            text_color="#1e1e2e",
-            font=("Arial", 20)  # Для емодзі використовується стандартний системний шрифт
+            border_spacing=0
         )
         bug_btn.pack(side="left", padx=5)
 
         run_btn = ctk.CTkButton(
             right_container,
-            text="➤",
+            text="" if self.play_icon else "➤",
+            image=self.play_icon,
             width=42,
             height=42,
             corner_radius=10,
             fg_color=COLOR_PLAY_BTN,
             hover_color="#739ee8",
-            text_color="#1e1e2e",
-            font=FONT_LARGE
         )
         run_btn.pack(side="left", padx=5)
 
